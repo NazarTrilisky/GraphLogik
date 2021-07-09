@@ -16,3 +16,8 @@ Fresh breath
 If I use toothpaste the unlikely outcome is: 
 Cavities
 ```
+
+## ToDo
+* Select an open source graph or write a dict-based one.
+* Optimize for speed of finding nodes.
+
