@@ -10,10 +10,10 @@
 The below script shows the basic concept of logical flow ("thinking").
 ```
 python concept.py
-If I use mouthwash the likely outcome is: 
+If I use mouthwash the likely outcome is:
 Fresh breath
 
-If I use toothpaste the unlikely outcome is: 
+If I use toothpaste the unlikely outcome is:
 Cavities
 ```
 
