@@ -1,5 +1,9 @@
 # AssociativeLogic
 
+## Setup
+1. pip3 install -r requirements.txt
+2. python -m spacy download en_core_web_sm
+
 ## Basic Idea
 1. Create a graph of concepts by reading and pulling out concepts and relationships.
 2. Feed a situation into the above world model (graph) to activate a certain group of nodes.
