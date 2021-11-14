@@ -31,8 +31,10 @@ if __name__ == '__main__':
     kg.addNode("teeth")
     kg.addNode("floss")
     kg.addNode("cavities")
-    kg.connect("brush", "teeth")
-    kg.connect("floss", "teeth", 1.5)
+    kg.connect("brush", "teeth", .9)
+    kg.connect("floss", "teeth", .8)
     kg.connect("brush", "cavities", -1)
+    kg.connect("floss", "brush", .95)
+    kg.connect("cavities", "floss", -.9)
     kg.show()
 

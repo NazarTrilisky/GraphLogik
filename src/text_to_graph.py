@@ -3,47 +3,48 @@ import spacy
 from graph import KnowledgeGraph
 
 nlp = spacy.load('en_core_web_sm')
-kg = KnowledgeGraph()
-tokens = nlp("The quick brown fox jumped over the lazy, fat dog.")
 
 
-def link_related_nodes(kg, token_idx):
-    """ Link adjectives and verbs and subj/obj """
-    if tokens[token_idx].pos_ in [u'NOUN', u'PROPN']:
-        # go backwards
-        for idx in range(token_idx-1, -1, -1):
-            if tokens[idx].pos_ in [u'ADJ', u'advcl', u'VERB']:
-                kg.connect(tokens[token_idx].text, tokens[idx].text, weight=1)
+def translate_text_into_graph(kg, text):
+    """
+    Adds nodes and relationships from the text into knowledge graph (kg)
+    """
+    tokens = nlp(text)
+    adj_list = []
+    subj = None
+    obj = None
+    verb = None
+    for token in tokens:
+        print("%s, %s, %s" % (token.text, token.pos_, token))
+        if token.pos_ in [u'NOUN', u'PROPN']:
+            kg.addNode(token.text)
+            if adj_list:
+                for adj in adj_list:
+                    kg.connect(adj, token.text)
+                adj_list.clear()
 
-        # go forwards
-        for idx in range(token_idx+1, 1, len(tokens)):
-            if tokens[idx].pos_ in [u'VERB']:
-                kg.connect(tokens[token_idx].text, tokens[idx].text, weight=1)
+            if 'subj' in token.dep_:
+                subj = token.text
+            elif 'obj' in token.dep_ and subj and verb:
+                obj = token.text
+                kg.connect(subj, verb, 1)
+                kg.connect(verb, obj, 1)
+        elif token.pos_ == u'PRON':
+            # replace pronoun w. noun
+            pass
+        elif token.pos_ == u'ADJ':
+            kg.addNode(token.text)
+            adj_list.append(token.text)
+        elif token.pos_ == u'VERB':
+            kg.addNode(token.text)
+            verb = token.text
+        else:
+            pass
 
 
-# Add all nodes
-for token in tokens:
-    #@TODO check u'obj' / subj in token.dep_
-    print("%s, %s, %s" % (token.text, token.pos_, token))
-    if token.pos_ in [u'NOUN', u'PROPN']:
-        kg.addNode(token.text)
-    elif token.pos_ == u'PRON':
-        #@TODO replace pronoun w. noun
-        pass
-    elif token.pos_ == u'ADJ':
-        kg.addNode(token.text)
-        #kg.connect(
-    elif token.pos_ == u'VERB':
-        kg.addNode(token.text)
-    else:
-        #@TODO handle case
-        pass
-
-
-# Link nodes
-for idx in range(len(tokens)):
-    link_related_nodes(kg, idx)
-
-
-kg.show()
+if __name__ == '__main__':
+    kg = KnowledgeGraph()
+    text = "The quick brown fox jumped over the lazy, fat dog."
+    translate_text_into_graph(kg, text)
+    kg.show()
 
