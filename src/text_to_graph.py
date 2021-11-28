@@ -1,21 +1,20 @@
 
 import spacy
-from graph import KnowledgeGraph
+from src.graph import KnowledgeGraph
 
 nlp = spacy.load('en_core_web_sm')
 
 
-def translate_text_into_graph(kg, text):
+def translate_text_into_graph(kg, sentence):
     """
-    Adds nodes and relationships from the text into knowledge graph (kg)
+    Adds nodes and relationships from the sentence into knowledge graph (kg)
     """
-    tokens = nlp(text)
+    tokens = nlp(sentence)
     adj_list = []
     subj = None
     obj = None
     verb = None
     for token in tokens:
-        print("%s, %s, %s" % (token.text, token.pos_, token))
         if token.pos_ in [u'NOUN', u'PROPN']:
             kg.addNode(token.text)
             if adj_list:
@@ -23,9 +22,9 @@ def translate_text_into_graph(kg, text):
                     kg.connect(adj, token.text)
                 adj_list.clear()
 
-            if 'subj' in token.dep_:
+            if not verb:  #token.dep_.endswith('subj'):
                 subj = token.text
-            elif 'obj' in token.dep_ and subj and verb:
+            elif token.dep_.endswith('obj') and subj and verb:
                 obj = token.text
                 kg.connect(subj, verb, 1)
                 kg.connect(verb, obj, 1)
