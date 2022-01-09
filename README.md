@@ -2,7 +2,8 @@
 
 ## Setup
 1. pip3 install -r requirements.txt
-2. python -m spacy download en_core_web_sm
+2. python3 -m spacy download en_core_web_sm
+3. sudo apt-get install python3-tk  # for GUI to work
 
 ## Basic Idea
 1. Create a graph of concepts by reading and pulling out concepts and relationships.
