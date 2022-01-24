@@ -2,15 +2,19 @@
 import spacy
 from src.graph import KnowledgeGraph
 
+from depronounize.depronounize import replace_pronouns
+
 nlp = spacy.load('en_core_web_sm')
 stopwords = nlp.Defaults.stop_words
 
 
-def translate_text_into_graph(kg, sentences):
+def translate_text_into_graph(kg, text):
     """
     Adds nodes and relationships from the sentences into knowledge graph (kg)
     """
-    #@TODO replace_pronouns(sentences)
+    new_text = replace_pronouns(text)
+    sentences = new_text.split(".")
+
     for sentence in sentences:
         tokens_w_stopwords = nlp(sentence)
         tokens = [word for word in tokens_w_stopwords if not word in stopwords]
