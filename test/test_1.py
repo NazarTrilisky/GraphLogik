@@ -9,8 +9,7 @@ with open('test/files/beauty_and_the_beast_tiny.txt', 'r') as fh:
     story = fh.read()
 
 kg = KnowledgeGraph()
-sentences = story.split('.')
-translate_text_into_graph(kg, sentences)
+translate_text_into_graph(kg, story)
 
 kg.show()
 
