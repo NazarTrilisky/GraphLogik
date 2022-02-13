@@ -14,7 +14,7 @@
 ## Mini Demo
 The below script shows the basic concept of logical flow ("thinking").
 ```
-python concept.py
+python test/concept.py
 If I use mouthwash the likely outcome is:
 Fresh breath
 
