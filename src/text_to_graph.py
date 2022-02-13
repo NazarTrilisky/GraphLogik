@@ -5,7 +5,7 @@ from src.graph import KnowledgeGraph
 from depronounize.depronounize import replace_pronouns
 
 nlp = spacy.load('en_core_web_sm')
-stopwords = nlp.Defaults.stop_words
+stopwords = ['a', 'the', 'for', 'at', 'by']
 
 
 def translate_text_into_graph(kg, text):
@@ -17,36 +17,44 @@ def translate_text_into_graph(kg, text):
 
     for sentence in sentences:
         tokens_w_stopwords = nlp(sentence)
-        tokens = [word for word in tokens_w_stopwords if not word in stopwords]
+        tokens = [token for token in tokens_w_stopwords if not token.text in stopwords]
         adj_list = []
         subj = None
         obj = None
         verb = None
-        for token in tokens:
-            if token.pos_ in [u'NOUN', u'PROPN']:
-                kg.addNode(token.text)
-                if adj_list:
-                    for adj in adj_list:
-                        kg.connect(adj, token.lemma_)
-                    adj_list.clear()
 
-                if not verb:  #token.dep_.endswith('subj'):
-                    subj = token.lemma_
-                elif token.dep_.endswith('obj') and subj and verb:
-                    obj = token.lemma_
-                    kg.connect(subj, verb, 1)
-                    kg.connect(verb, obj, 1)
-            elif token.pos_ == u'PRON':
-                # replace pronoun w. noun
-                pass
-            elif token.pos_ == u'ADJ':
+        # get entities and descriptions: adj expected to precede noun
+        descr_tokens = []
+        for token in tokens:
+            if token.pos_ in ['ADJ', 'NUM']:
+                descr_tokens.append(token)
+            elif token.pos_ in ['NOUN']:
                 kg.addNode(token.lemma_)
-                adj_list.append(token.lemma_)
-            elif token.pos_ == u'VERB':
-                kg.addNode(token.lemma_)
-                verb = token.lemma_
-            else:
-                pass
+                for descr_token in descr_tokens:
+                    kg.addNode(descr_token.lemma_)
+                    kg.connect(token.lemma_, descr_token.lemma_)
+                descr_tokens.clear()
+
+        # get root verb and connect main action, subj, obj
+        subj_tok = []
+        obj_tok = []
+        verb_tok = None
+        for token in tokens:
+            if token.dep_ == 'ROOT':
+                verb_tok = token
+            elif token.dep_.endswith('subj'):
+                subj_tok.append(token)
+            elif token.dep_.endswith('obj'):
+                obj_tok.append(token)
+
+        if verb_tok:
+            kg.addNode(verb_tok.lemma_)
+            for st in subj_tok:
+                kg.addNode(st.lemma_)
+                kg.connect(st.lemma_, verb_tok.lemma_)
+            for ot in obj_tok:
+                kg.addNode(ot.lemma_)
+                kg.connect(ot.lemma_, verb_tok.lemma_)
 
 
 if __name__ == '__main__':

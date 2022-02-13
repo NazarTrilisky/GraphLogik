@@ -10,7 +10,8 @@ class KnowledgeGraph:
     def addNode(self, text):
         """ idempotent operation """
         text = text.strip().lower()
-        self.graph.add_node(text.strip().lower())
+        if text:
+            self.graph.add_node(text)
 
     def connect(self, n1, n2, weight=1):
         self.graph.add_weighted_edges_from([(n1, n2, weight)])
