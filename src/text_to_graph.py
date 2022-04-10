@@ -14,10 +14,11 @@ def add_adjectives_to_graph(kg, tokens):
         if token.pos_ in ['ADJ', 'NUM']:
             descr_tokens.append(token)
         elif token.pos_ in ['NOUN']:
-            kg.addNode(token.lemma_)
             for descr_token in descr_tokens:
-                kg.addNode(descr_token.lemma_)
-                kg.connect(token.lemma_, descr_token.lemma_)
+                if token.text.strip() and descr_token.text.strip():
+                    kg.addNode(token.lemma_)
+                    kg.addNode(descr_token.lemma_)
+                    kg.addEdge(token.lemma_, descr_token.lemma_, label='')
             descr_tokens.clear()
 
 
@@ -79,13 +80,12 @@ def translate_text_into_graph(kg, text):
                 verb_token = token
                 subjects, objects = get_subj_obj(tokens, idx)
                 print("verb: {}, subj: {}, obj: {}".format(verb_token, subjects, objects))
-                kg.addNode(verb_token.lemma_)
                 for subj in subjects:
-                    kg.addNode(subj.lemma_)
-                    kg.connect(subj.lemma_, verb_token.lemma_)
-                for obj in objects:
-                    kg.addNode(obj.lemma_)
-                    kg.connect(obj.lemma_, verb_token.lemma_)
+                    for obj in objects:
+                        if obj.text.strip() and subj.text.strip():
+                            kg.addNode(subj.lemma_)
+                            kg.addNode(obj.lemma_)
+                            kg.addEdge(subj.lemma_, obj.lemma_, label=verb_token.lemma_)
 
 
 if __name__ == '__main__':
