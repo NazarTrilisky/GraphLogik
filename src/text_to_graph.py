@@ -6,9 +6,36 @@ from src.graph import KnowledgeGraph
 nlp = spacy.load('en_core_web_sm')
 stopwords = ['a', 'the', 'for', 'at', 'by']
 
+#Pronoun replace
+last_masculaine_entity  = None
+last_feminine_entity    = None
+last_plural_entity      = None
+feminine_pronouns =     ['she', 'her', 'hers', 'herself']
+masculaine_pronouns =   ['he', 'him' 'his', 'himself']
+neutral_pronouns =      ['it', 'its', 'itself']
+plural_pronouns =       ['they', 'them', 'their', 'theirs', 'themselves']
+
+
+def replace_pronoun(token):
+    """
+    Replace pronoun token with the string of what it refers to
+    """
+    global last_masculaine_entity
+    global last_feminine_entity
+    global last_plural_entity
+    global feminine_pronouns
+    global masculaine_pronouns
+    global neutral_pronouns
+    global plural_pronouns
+
+    return "PRONOUN"
+
 
 def add_adjectives_to_graph(kg, tokens):
-    # get entities and descriptions: adj expected to precede noun
+    """
+    Get entities and descriptions: adj expected to precede noun
+    The 'tokens' arg is for a single sentence
+    """
     descr_tokens = []
     for token in tokens:
         if token.pos_ in ['ADJ', 'NUM']:
@@ -16,9 +43,9 @@ def add_adjectives_to_graph(kg, tokens):
         elif token.pos_ in ['NOUN']:
             for descr_token in descr_tokens:
                 if token.text.strip() and descr_token.text.strip():
-                    kg.addNode(token.lemma_)
-                    kg.addNode(descr_token.lemma_)
-                    kg.addEdge(token.lemma_, descr_token.lemma_, label='')
+                    kg.addNode(token.text)
+                    kg.addNode(descr_token.text)
+                    kg.addEdge(token.text, descr_token.text, label='')
             descr_tokens.clear()
 
 
@@ -50,7 +77,6 @@ def translate_text_into_graph(kg, text):
     """
     Adds nodes and relationships from the sentences into knowledge graph (kg)
     """
-    #new_text = replace_pronouns(text)
     new_text = text.replace(';', '.')
     sentences = new_text.split(".")
 
@@ -61,7 +87,7 @@ def translate_text_into_graph(kg, text):
 
         print("\n\n")
         for t in tokens:
-            print(t, t.pos_, t.dep_, t.lemma_)
+            print(t, t.pos_, t.dep_, t.text)
 
         adj_list = []
         subj = None
@@ -74,6 +100,7 @@ def translate_text_into_graph(kg, text):
         subj_tok = []
         obj_tok = []
         verb_tok = None
+
         for idx in range(len(tokens)):
             token = tokens[idx]
             if token.pos_ == 'VERB':
@@ -83,9 +110,15 @@ def translate_text_into_graph(kg, text):
                 for subj in subjects:
                     for obj in objects:
                         if obj.text.strip() and subj.text.strip():
-                            kg.addNode(subj.lemma_)
-                            kg.addNode(obj.lemma_)
-                            kg.addEdge(subj.lemma_, obj.lemma_, label=verb_token.lemma_)
+                            subj_text = subj.text
+                            obj_text = obj.text
+                            if subj.pos_ == 'PRON':
+                                subj_text = replace_pronoun(subj)
+                            if obj.pos_ == 'PRON':
+                                obj_text = replace_pronoun(obj)
+                            kg.addNode(subj_text)
+                            kg.addNode(obj_text)
+                            kg.addEdge(subj_text, obj_text, label=verb_token.text)
 
 
 if __name__ == '__main__':
