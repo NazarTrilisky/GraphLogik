@@ -21,9 +21,13 @@ def add_adjectives_to_graph(kg, tokens):
         elif token.pos_ in ['NOUN']:
             for descr_token in descr_tokens:
                 if token.text.strip() and descr_token.text.strip():
-                    kg.addNode(token.text)
-                    kg.addNode(descr_token.text)
-                    kg.addEdge(token.text, descr_token.text, label='')
+                    kg.addNode(token.text.lower())
+                    kg.addNode(descr_token.text.lower())
+                    kg.addEdge(
+                        token.text.lower(),
+                        descr_token.text.lower(),
+                        label=''
+                    )
             descr_tokens.clear()
 
 
@@ -35,6 +39,7 @@ def get_subj_obj(tokens, idx):
     subjects = []
     objects = []
     cur = idx - 1
+
     # move backwards to find subjects
     while cur >= 0 and tokens[cur].dep_ != 'VERB':
         if tokens[cur].dep_.endswith('subj') and tokens[cur].text.strip():
@@ -53,8 +58,8 @@ def get_subj_obj(tokens, idx):
 
 def get_token_text(token):
     if token.pos_ == 'PRON':
-        return get_text_for_pronoun(token)
-    return token.text
+        return get_text_for_pronoun(token).lower()
+    return token.text.lower()
 
 
 def translate_text_into_graph(kg, text):
@@ -69,9 +74,9 @@ def translate_text_into_graph(kg, text):
         tokens = [token for token in tokens_w_stopwords if not token.text in stopwords]
         tokens = [token for token in tokens if token.text.strip()]
 
-        print("\n\n")
-        for t in tokens:
-            print("%s, %s, %s" % (t, t.pos_, t.dep_))
+        #print("\n\n")
+        #for t in tokens:
+        #    print("%s, %s, %s" % (t, t.pos_, t.dep_))
 
         # Add adjectives to nouns
         add_adjectives_to_graph(kg, tokens)
@@ -80,34 +85,28 @@ def translate_text_into_graph(kg, text):
         for idx in range(len(tokens)):
             token = tokens[idx]
             if tokens[idx].pos_ == 'NOUN':
-                #print("noun: %s, lemma: %s" % (tokens[idx], tokens[idx].lemma_))
                 update_last_noun(tokens, idx)
             elif token.pos_ == 'VERB':
                 verb_token = token
                 subjects, objects = get_subj_obj(tokens, idx)
-                print("verb: {}, subj: {}, obj: {}".format(verb_token, subjects, objects))
 
                 if subjects and objects:
                     for subj in subjects:
                         for obj in objects:
-                            kg.addNode(get_token_text(subj))
-                            kg.addNode(get_token_text(obj))
-                            kg.addEdge(
-                                get_token_text(subj),
-                                get_token_text(obj),
-                                label=verb_token.text
-                            )
+                            subj_text = get_token_text(subj)
+                            obj_text = get_token_text(obj)
+                            if subj_text.lower() != obj_text.lower():
+                                kg.addNode(subj_text)
+                                kg.addNode(obj_text)
+                                kg.addEdge(
+                                    get_token_text(subj),
+                                    get_token_text(obj),
+                                    label=verb_token.text
+                                )
 
                 elif subjects and not objects:
-                    for subj in subjects:
-                        pass
-                        #kg.addNode(get_token_text(subj))
-                        #kg.addEdge(get_token_text(obj), get_token_text(obj))
+                    print(subjects)
 
                 elif objects and not subjects:
-                    for obj in objects:
-                        pass
-                        #kg.addNode(get_token_text(obj))
-                        #kg.addEdge(get_token_text(obj), get_token_text(obj))
-
+                    print(objects)
 
