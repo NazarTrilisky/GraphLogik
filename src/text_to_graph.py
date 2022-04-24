@@ -26,7 +26,7 @@ def add_adjectives_to_graph(kg, tokens):
                     kg.addEdge(
                         token.text.lower(),
                         descr_token.text.lower(),
-                        label=''
+                        label='adj'
                     )
             descr_tokens.clear()
 
