@@ -62,21 +62,19 @@ def get_token_text(token):
     return token.text.lower()
 
 
-def translate_text_into_graph(kg, text):
+def text_to_graph_subj_verb_obj(kg, text):
     """
     Adds nodes and relationships from the sentences into knowledge graph (kg)
+    Uses the approach of adding a verb and it's subject(s) and object(s)
     """
     new_text = text.replace(';', '.')
     sentences = new_text.split(".")
 
     for sentence in sentences:
         tokens_w_stopwords = nlp(sentence)
+
         tokens = [token for token in tokens_w_stopwords if not token.text in stopwords]
         tokens = [token for token in tokens if token.text.strip()]
-
-        #print("\n\n")
-        #for t in tokens:
-        #    print("%s, %s, %s" % (t, t.pos_, t.dep_))
 
         # Add adjectives to nouns
         add_adjectives_to_graph(kg, tokens)
@@ -109,4 +107,32 @@ def translate_text_into_graph(kg, text):
 
                 elif objects and not subjects:
                     print(objects)
+
+
+def text_to_graph_parse_tree(kg, text):
+    """
+    Adds nodes and relationships from the sentences into knowledge graph (kg)
+    Uses the approach of parse tree
+    """
+    new_text = text.replace(';', '.')
+    sentences = new_text.split(".")
+
+    for sentence in sentences:
+        all_tokens = nlp(sentence)
+        accepted_pos = ['NOUN', 'VERB', 'ADJ']
+        tokens = [token for token in all_tokens if token.pos_ in accepted_pos]
+
+        token_dict = {}
+        for token in tokens:
+            #print("token: %s, dep: %s, head: %s, head pos: %s, child_nodes: %s" %
+            #      (token.text, token.dep_, token.head.text, token.head.pos_,
+            #       [child for child in token.children]))
+            token_dict[token.text] = token
+
+        for text, token in token_dict.items():
+            if token.head.text and token.text:
+                kg.addNode(token.text)
+                kg.addNode(token.head.text)
+                kg.addEdge(token.text, token.head.text)
+
 
