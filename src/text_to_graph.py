@@ -124,15 +124,12 @@ def text_to_graph_parse_tree(kg, text):
 
         token_dict = {}
         for token in tokens:
-            #print("token: %s, dep: %s, head: %s, head pos: %s, child_nodes: %s" %
-            #      (token.text, token.dep_, token.head.text, token.head.pos_,
-            #       [child for child in token.children]))
             token_dict[token.text] = token
 
         for text, token in token_dict.items():
-            if token.head.text and token.text:
-                kg.addNode(token.text)
-                kg.addNode(token.head.text)
-                kg.addEdge(token.text, token.head.text)
+            if token.head.text and token.text and token.head.lemma_ != token.lemma_:
+                kg.addNode(token.lemma_)
+                kg.addNode(token.head.lemma_)
+                kg.addEdge(token.lemma_, token.head.lemma_)
 
 
