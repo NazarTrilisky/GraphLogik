@@ -21,7 +21,7 @@ class KnowledgeGraph:
         nx.draw(self.graph, s_layout, with_labels=True)
         node_labels = nx.get_node_attributes(self.graph, 'label')
         nx.draw_networkx_labels(self.graph, s_layout, labels = node_labels)
-        edge_labels = nx.get_edge_attributes(self.graph, 'label')
+        edge_labels = nx.get_edge_attributes(self.graph, 'weight')
         nx.draw_networkx_edge_labels(self.graph, s_layout, edge_labels)
         plt.show()
 

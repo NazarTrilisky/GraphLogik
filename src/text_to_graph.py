@@ -1,7 +1,7 @@
 
 import spacy
-from src.graph import KnowledgeGraph
 
+from src.graph import KnowledgeGraph
 from src.pronouns import update_last_noun, get_text_for_pronoun
 
 
@@ -12,7 +12,13 @@ stopwords = ['a', 'the', 'for', 'at', 'by']
 def add_and_link_nodes(kg, tok1, tok2):
     kg.addNode(tok1.lemma_)
     kg.addNode(tok2.lemma_)
-    kg.addEdge(tok1.lemma_, tok2.lemma_)
+
+    weight = 1
+    edge = kg.graph.get_edge_data(tok1.lemma_, tok2.lemma_)
+    if edge:
+        weight += edge['weight']
+
+    kg.addEdge(tok1.lemma_, tok2.lemma_, weight=weight)
 
 
 def text_to_graph_parse_tree(kg, text):
