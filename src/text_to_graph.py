@@ -44,7 +44,8 @@ def text_to_graph_parse_tree(kg, text):
                 queue.append(c_tok)
                 if (token.pos_ in accepted_pos and token.text.strip() and
                     parent_token.lemma_ != token.lemma_ and
-                    token.lemma_ not in bypassed_lemmas):
+                    token.lemma_ not in bypassed_lemmas and
+                    parent_token.lemma_ not in bypassed_lemmas):
                     add_and_link_nodes(kg, parent_token, token)
 
         while queue:
