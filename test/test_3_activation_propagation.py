@@ -11,11 +11,8 @@ with open('test/files/beauty_and_the_beast_tiny.txt', 'r') as fh:
 kg = KnowledgeGraph()
 text_to_graph_parse_tree(kg, story)
 
-g = kg.graph
-
-import pdb
-pdb.set_trace()
-
+neighbors = kg.get_neighbors('merchant')
+print(neighbors)
 
 #@TODO Input to activate nodes
 #@TODO Step function to iterate concepts
