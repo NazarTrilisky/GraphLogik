@@ -28,3 +28,4 @@ urllib3==1.26.7
 wasabi==0.8.2
 matplotlib==3.4.3
 depronounize==1.0.10
+pytest==7.1.2

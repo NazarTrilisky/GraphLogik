@@ -4,6 +4,8 @@ import networkx as nx
 from networkx.exception import NetworkXError
 import matplotlib.pyplot as plt
 
+from collections import defaultdict
+
 
 nlp = spacy.load('en_core_web_sm')
 
@@ -34,22 +36,28 @@ class KnowledgeGraph:
         nx.draw_networkx_edge_labels(self.graph, s_layout, edge_labels)
         plt.show()
 
-    def get_neighbors(self, keywords):
+    def get_next_nodes(self, keywords):
         """
         Return a list of neighbor nodes
         arg: keywords = list of strings
-        return: list of strings (node names)
+        return: dict: key = next node name, val = num times node hit
         """
-        neighbors = {}  # key = node name, value = strength of relationship
+        # key = node name, value = strength of relationship
+        nodes_dict = defaultdict(lambda: 0)
         tokens = nlp(' '.join(keywords))
         for token in tokens:
             try:
                 cur_nbrs = self.graph.neighbors(token.lemma_)
             except NetworkXError as err:
-                continue
+                if 'not in the graph' in str(err).lower():
+                    continue
+                else:
+                    raise err
 
-            neighbors += [n for n in cur_nbrs]
+            neighbors = [n for n in cur_nbrs]
+            for n in neighbors:
+                nodes_dict[n] += 1
 
-        return neighbors
+        return nodes_dict
 
 
