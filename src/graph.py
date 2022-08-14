@@ -38,7 +38,6 @@ class KnowledgeGraph:
 
     def get_next_nodes(self, keywords):
         """
-        Return a list of neighbor nodes
         arg: keywords = list of strings
         return: dict: key = next node name, val = num times node hit
         """
