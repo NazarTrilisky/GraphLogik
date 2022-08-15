@@ -40,8 +40,8 @@ class KnowledgeGraph:
         """
         arg: cur_nodes = list of strings
         arg: visited = list of node names already visited
-        return: tuple (cur_nodes, <dict-of-next-nodes>)
-            cur_nodes = same list of words, but their lemmas
+        return: tuple (cur_lemmas, <dict-of-next-nodes>)
+            cur_lemmas = same list of words, but their lemmas
             dict: key = next node name, val = num times node hit
         """
         # key = node name, value = strength of relationship
