@@ -36,15 +36,20 @@ class KnowledgeGraph:
         nx.draw_networkx_edge_labels(self.graph, s_layout, edge_labels)
         plt.show()
 
-    def get_next_nodes(self, keywords):
+    def get_next_nodes(self, cur_nodes):
         """
-        arg: keywords = list of strings
-        return: dict: key = next node name, val = num times node hit
+        arg: cur_nodes = list of strings
+        arg: visited = list of node names already visited
+        return: tuple (cur_nodes, <dict-of-next-nodes>)
+            cur_nodes = same list of words, but their lemmas
+            dict: key = next node name, val = num times node hit
         """
         # key = node name, value = strength of relationship
         nodes_dict = defaultdict(lambda: 0)
-        tokens = nlp(' '.join(keywords))
+        tokens = nlp(' '.join(cur_nodes))
+        cur_lemmas = []
         for token in tokens:
+            cur_lemmas.append(token.lemma_)
             try:
                 cur_nbrs = self.graph.neighbors(token.lemma_)
             except NetworkXError as err:
@@ -54,9 +59,10 @@ class KnowledgeGraph:
                     raise err
 
             neighbors = [n for n in cur_nbrs]
-            for n in neighbors:
-                nodes_dict[n] += 1
+            for nbr in neighbors:
+                nodes_dict[nbr] += 1
 
-        return nodes_dict
+        return cur_lemmas, nodes_dict
+
 
 

@@ -12,12 +12,15 @@ def test_get_next_nodes():
     kg = KnowledgeGraph()
     text_to_graph_parse_tree(kg, story)
 
-    cur_lemmas, next_nodes = kg.get_next_nodes(['merchant'])
-    assert(next_nodes == {'rich': 1, 'have': 1})
-    assert(cur_lemmas == ['merchant'])
+    visited
+    nodes = kg.get_next_nodes(['merchant'])
+    assert(nodes == {'rich': 1, 'have': 1})
 
 
 if __name__ == '__main__':
     test_get_next_nodes()
     print('passed')
+
+#@TODO Step function to iterate concepts
+
 
