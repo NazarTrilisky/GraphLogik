@@ -1,2 +1,0 @@
-#@TODO Output translate result
-

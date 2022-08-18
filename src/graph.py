@@ -36,9 +36,9 @@ class KnowledgeGraph:
         nx.draw_networkx_edge_labels(self.graph, s_layout, edge_labels)
         plt.show()
 
-    def get_next_nodes(self, cur_nodes):
+    def get_next_nodes(self, cur_lemmas):
         """
-        arg: cur_nodes = list of strings
+        arg: cur_lemmas = list of strings
         arg: visited = list of node names already visited
         return: tuple (cur_lemmas, <dict-of-next-nodes>)
             cur_lemmas = same list of words, but their lemmas
@@ -46,7 +46,7 @@ class KnowledgeGraph:
         """
         # key = node name, value = strength of relationship
         nodes_dict = defaultdict(lambda: 0)
-        tokens = nlp(' '.join(cur_nodes))
+        tokens = nlp(' '.join(cur_lemmas))
         cur_lemmas = []
         for token in tokens:
             cur_lemmas.append(token.lemma_)
@@ -64,5 +64,38 @@ class KnowledgeGraph:
 
         return cur_lemmas, nodes_dict
 
+
+    def iterate_graph(self, start_words, max_hops=5):
+        """
+        arg: start_words = list of strings to start searching graph with
+        arg: max_hops = max breadth-first-search depth
+        return: dict of visited nodes
+            key = lemma of word
+            val = num times word was hit when traversing the graph
+        """
+        tokens = nlp(' '.join(start_words))
+        start_lemmas = [tok.lemma_ for tok in tokens]
+
+        visited_dict = defaultdict(lambda: 0)
+        cur_lemmas, next_dict = self.get_next_nodes(start_lemmas)
+        counter = 0
+
+        while next_dict:
+            counter += 1
+            if counter > max_hops:
+                break
+
+            for cur_lemma in cur_lemmas:
+                visited_dict[cur_lemma] += 1
+
+            next_keys = [x for x in next_dict.keys()]
+            for key in next_keys:
+                if key in visited_dict:
+                    visited_dict[key] += next_dict[key]
+                    del next_dict[key]
+
+            cur_lemmas, next_dict = self.get_next_nodes(next_dict.keys())
+
+        return visited_dict
 
 
