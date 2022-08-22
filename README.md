@@ -16,3 +16,9 @@
 1. cd <top-level workspace>
 2. python -m pytest tests
 
+
+## ToDo
+* Update text-to-graph to not lose data (every item in sentence should be linked)
+* Keep using verb as edge between Noun and Adj nodes
+* Add weights to nodes, not edges.
+
