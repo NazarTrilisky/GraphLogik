@@ -2,7 +2,6 @@
 import spacy
 
 from src.graph import KnowledgeGraph
-from src.pronouns import update_last_noun, get_text_for_pronoun
 
 
 nlp = spacy.load('en_core_web_sm')
