@@ -19,6 +19,11 @@
 
 ## ToDo
 * Update text-to-graph to not lose data (every item in sentence should be linked)
+   - verb approach is good, but is missing some data: e.g. "handsome" from test_1
+   - issue is that the "handsome" sentence - Spacy doesn't recognize subj and obj pos_
+   - the token.head tree-building approach does not miss "handsome", but has
+     nodes for verbs, which should be links between nodes
+   - May need to combine two approaches: token.head tree approach and subj-verb-obj approach
 * Keep using verb as edge between Noun and Adj nodes
 * Add weights to nodes, not edges.
 
