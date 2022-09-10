@@ -6,7 +6,7 @@ import sys
 sys.path.insert(0, '.')
 
 from src.graph import KnowledgeGraph
-from src.text_to_graph import text_to_graph_parse_tree
+from src.text_to_graph import text_to_graph_link_all
 
 
 def test_iterate_graph_loop_use_case():
@@ -15,7 +15,7 @@ def test_iterate_graph_loop_use_case():
         story = fh.read()
 
     kg = KnowledgeGraph()
-    text_to_graph_parse_tree(kg, story)
+    text_to_graph_link_all(kg, story)
 
     start_text = "Why were the sisters jealous?"
     start_words = start_text.split()
@@ -24,6 +24,8 @@ def test_iterate_graph_loop_use_case():
     sorted_dict = dict(sorted(visited_dict.items(),
                               key=lambda x: x[1],
                               reverse=True))
+    import pdb
+    pdb.set_trace()
     print(sorted_dict)
 
 

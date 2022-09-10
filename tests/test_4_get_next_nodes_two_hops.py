@@ -4,7 +4,7 @@ sys.path.insert(0, '.')
 from collections import defaultdict
 
 from src.graph import KnowledgeGraph
-from src.text_to_graph import text_to_graph_parse_tree
+from src.text_to_graph import text_to_graph_link_all
 
 
 def test_iterate_graph():
@@ -13,7 +13,7 @@ def test_iterate_graph():
         story = fh.read()
 
     kg = KnowledgeGraph()
-    text_to_graph_parse_tree(kg, story)
+    text_to_graph_link_all(kg, story)
 
 
     # first hop
@@ -30,13 +30,13 @@ def test_iterate_graph():
             del next_dict[key]
 
     assert visited_dict == {'merchant': 1}
-    assert next_dict == {'rich': 1, 'have': 1}
+    assert next_dict == {'children': 1, 'there': 1, 'once': 1, 'rich': 1}
 
 
     # second hop
     second_lemmas, third_dict = kg.get_next_nodes(list(next_dict.keys()))
-    assert second_lemmas == ['rich', 'have']
-    assert third_dict == {'merchant': 2, 'child': 1}
+    assert second_lemmas == ['child', 'there', 'once', 'rich']
+    assert third_dict == {'once': 1, 'merchant': 3, 'there': 1, 'very': 1}
 
 
 if __name__ == '__main__':

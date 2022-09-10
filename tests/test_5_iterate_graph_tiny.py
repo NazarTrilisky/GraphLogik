@@ -4,7 +4,7 @@ sys.path.insert(0, '.')
 from collections import defaultdict
 
 from src.graph import KnowledgeGraph
-from src.text_to_graph import text_to_graph_parse_tree
+from src.text_to_graph import text_to_graph_link_all
 
 
 def test_iterate_graph_loop_tiny():
@@ -13,12 +13,13 @@ def test_iterate_graph_loop_tiny():
         story = fh.read()
 
     kg = KnowledgeGraph()
-    text_to_graph_parse_tree(kg, story)
+    text_to_graph_link_all(kg, story)
 
     start_words = ['merchant']
     visited_dict = kg.iterate_graph(start_words)
-    assert visited_dict == {'merchant': 3, 'rich': 1, 'have': 2,
-                            'child': 2, 'son': 2, 'daughter': 1}
+    assert visited_dict == {'merchant': 4, 'child': 1, 'there': 2,
+                            'once': 2, 'rich': 2,
+                            'very': 2, 'jealous': 1}
 
 
 def test_iterate_graph_loop_no_infinite_loops():
@@ -27,7 +28,7 @@ def test_iterate_graph_loop_no_infinite_loops():
         story = fh.read()
 
     kg = KnowledgeGraph()
-    text_to_graph_parse_tree(kg, story)
+    text_to_graph_link_all(kg, story)
 
     start_words = ['merchant']
     kg.iterate_graph(start_words, 9999999999999999999999)
@@ -38,5 +39,5 @@ def test_iterate_graph_loop_no_infinite_loops():
 if __name__ == '__main__':
     test_iterate_graph_loop_tiny()
     test_iterate_graph_loop_no_infinite_loops()
-    print('passed')
+    print('Passed')
 
