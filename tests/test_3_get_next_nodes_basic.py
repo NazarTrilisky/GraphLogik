@@ -2,7 +2,7 @@ import sys
 sys.path.insert(0, '.')
 
 from src.graph import KnowledgeGraph
-from src.text_to_graph import text_to_graph_parse_tree
+from src.text_to_graph import text_to_graph_link_all
 
 
 def test_get_next_nodes():
@@ -10,14 +10,14 @@ def test_get_next_nodes():
         story = fh.read()
 
     kg = KnowledgeGraph()
-    text_to_graph_parse_tree(kg, story)
+    text_to_graph_link_all(kg, story)
 
     cur_lemmas, next_nodes = kg.get_next_nodes(['merchant'])
-    assert(next_nodes == {'rich': 1, 'have': 1})
+    assert(next_nodes == {'children': 1, 'there': 1, 'once': 1, 'rich': 1})
     assert(cur_lemmas == ['merchant'])
 
 
 if __name__ == '__main__':
     test_get_next_nodes()
-    print('passed')
+    print('Passed')
 

@@ -18,7 +18,7 @@
 
 
 ## ToDo
-* Keep using verb as edge between Noun and Adj nodes
+* Fix test-4 and up.
 * Add weights to nodes, not edges.
 * Add negation (determinant 'no')
-
+* Logic queries / games.

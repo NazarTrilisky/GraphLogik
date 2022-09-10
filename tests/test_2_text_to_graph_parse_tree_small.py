@@ -22,4 +22,5 @@ def test_text_to_graph_link_all_small_text(show_graph=False):
 
 if __name__ == '__main__':
     test_text_to_graph_link_all_small_text(True)
+    print("Passed")
 
