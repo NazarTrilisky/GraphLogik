@@ -1,6 +1,6 @@
-#@TODO Output translate result
-# sample use-case for querying next concept
-# E.g. ask a simple question and seek answer in visited_nodes
+
+# Sample use-case for querying next concept:
+# ask a simple question and seek answer in visited_nodes.
 
 import sys
 sys.path.insert(0, '.')
@@ -19,14 +19,14 @@ def test_iterate_graph_loop_use_case():
 
     start_text = "Why were the sisters jealous?"
     start_words = start_text.split()
-    print(start_words)
     visited_dict = kg.iterate_graph(start_words, max_hops=10)
     sorted_dict = dict(sorted(visited_dict.items(),
                               key=lambda x: x[1],
                               reverse=True))
-    import pdb
-    pdb.set_trace()
-    print(sorted_dict)
+    visited_list = [x[0] for x in sorted_dict.items()]
+    assert len(visited_list) >= 5
+    assert 'beauty' in visited_list[:4]
+    assert 'young' in visited_list[:4]
 
 
 if __name__ == '__main__':
