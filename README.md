@@ -18,7 +18,5 @@
 
 
 ## ToDo
-* Fix test-4 and up.
-* Add weights to nodes, not edges.
-* Add negation (determinant 'no')
-* Logic queries / games.
+* Add negation (determinant 'no'), e.g. reverse sign of weight on node for get_next_nodes().
+* Logic queries / games for larger use cases.
