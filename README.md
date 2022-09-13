@@ -19,4 +19,12 @@
 
 ## ToDo
 * Add negation (determinant 'no'), e.g. reverse sign of weight on node for get_next_nodes().
-* Logic queries / games for larger use cases.
+  - May be best to add this to the graph.py traversal function: if negation, then switch weight sign.
+  - First properly position negation: may need to move negation node between two nouns or move negation to edge ... not sure yet.
+
+* Add a POC service to:
+  1. Load text and conver to graph.
+  2. Allow user to enter a query / question.
+  3. Provide answer / next logical outcome.
+     Depict relevant part of graph.
+     Cool if this is game-like.
