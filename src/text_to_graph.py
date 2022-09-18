@@ -8,9 +8,9 @@ from src.graph import KnowledgeGraph
 
 nlp = spacy.load('en_core_web_sm')
 
-SKIPPED_POS = ['ADP', 'CCONJ']
-ACCEPTED_POS = ['ADJ', 'ADV', 'INTJ', 'NOUN', 'NUM'
-                'PART', 'PRON', 'PROPN', 'VERB']
+IGNORED_POS = ['PUNCT']
+NODE_POS    = ['NOUN', 'PRON', 'PROPN']
+ACTION_POS  = ['VERB', 'AUX']
 
 
 class Node:
@@ -23,8 +23,6 @@ class Node:
 def add_and_link_nodes(kg, tok1, tok2, edge_attrs):
     if (
         tok1.lemma_.lower() != tok2.lemma_.lower() and
-        not tok1.is_punct and
-        not tok2.is_punct and
         tok1.text.strip() and
         tok2.text.strip()
     ):
@@ -45,39 +43,38 @@ def build_tree_from_heads(kg, root_node):
             queue.append(kid_node)
 
 
-def link_node_to_kids(kg, cur_node, child_nodes):
-    """
-    Don't link two verbs in a row
-    Don't link parts of speech (POS) that do not matter
-    arg: kg: instance of KnowledgeGraph class
-    arg: cur_node: root node, instance of Node class
-    arg: child_nodes: list of Node class instances
-    """
+def link_to_upwards_node(kg, cur_node):
+    if cur_node.token.pos_ in NODE_POS:
+        pass
+    else:
+        attrs = []
+        while (cur_node.parent and
+               cur_node.parent.token.pos_ not in NODE_POS):
+            cur_node = cur_node.parent
+            attrs.append(cur_node.token.text)
+        if cur_node.parent and cur_node.parent.token.pos_ in NODE_POS:
+            kg.addNode(cur_node.parent.token.text, label=str(attrs))
+
+
+def bottom_up_node_connect(kg, root_node):
+    stack = [root_node]
+    while stack:
+        cur_node = stack.pop(-1)
+        for kid_node in cur_node.kids:
+            stack.append(kid_node)
+            if (not kid_node.kids and
+                kid_node.token.pos_ not in IGNORED_POS):
+                link_to_upwards_node(kg, kid_node)
+
+
+def erase_me_please(kg, cur_node, child_nodes):
     for child_node in child_nodes:
         if cur_node.token.pos_ in ['VERB', 'AUX']:
-            toks_to_link = [n.token for n in child_nodes
-                            if n.token.pos_ in ACCEPTED_POS
-                            and n.token.pos_ not in ['VERB', 'AUX']]
+            toks_to_link = [n.token for n in child_nodes]
             pairs = list(combinations(toks_to_link, 2))
             for pair in pairs:
                 add_and_link_nodes(kg, pair[0], pair[1],
-                                   {'name': cur_node.token.text})
-
-        elif (cur_node.token.pos_ in ACCEPTED_POS and
-              child_node.token.pos_ in ACCEPTED_POS):
-            add_and_link_nodes(
-                kg,
-                cur_node.token,
-                child_node.token,
-                {'name': ''}
-            )
-
-        elif child_node.token.pos_ in SKIPPED_POS:
-            if child_node.kids:
-                link_node_to_kids(kg, cur_node, child_node.kids)
-
-        if child_node.kids:
-            link_node_to_kids(kg, child_node, child_node.kids)
+                                   {'label': cur_node.token.text})
 
 
 def text_to_graph_link_all(kg, text):
@@ -86,8 +83,10 @@ def text_to_graph_link_all(kg, text):
     """
     text = replace_pronouns(text)
     doc  = nlp(text)
+    #from spacy import displacy
+    #displacy.serve(doc, style="dep")
     for sentence in doc.sents:
         root_node = Node(sentence.root)
         build_tree_from_heads(kg, root_node)
-        link_node_to_kids(kg, root_node, root_node.kids)
+        bottom_up_node_connect(kg, root_node)
 
