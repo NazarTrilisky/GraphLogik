@@ -35,33 +35,14 @@ def add_and_link_nodes(kg, tok1, tok2, edge_attrs):
         kg.addEdge(t1, t2, **edge_attrs)
 
 
-def build_tree_from_heads(kg, root_tok):
-    """
-    Build a dependency tree for one sentence
-    using each token's head
-    arg: kg: instance of KnowledgeGraph class
-    arg: root_tok: Spacy token with dep_ of ROOT
-    return: instance of Node that contains root_tok
-    """
-    root_node = Node(root_tok)
-    node_dict = {root_tok.vector_norm: root_node}
-
-    for kid_tok in root_tok.subtree:
-        if kid_tok.vector_norm == root_tok.vector_norm:
-            continue
-
-        if kid_tok.vector_norm not in node_dict:
-            node_dict[kid_tok.vector_norm] = Node(kid_tok, root_node)
-
-        if kid_tok.has_head():
-            if kid_tok.head.vector_norm not in node_dict:
-                node_dict[kid_tok.head.vector_norm] = Node(
-                    kid_tok.head, root_node)
-
-            node_dict[kid_tok.head.vector_norm].kids.append(
-                node_dict[kid_tok.vector_norm])
-
-    return root_node
+def build_tree_from_heads(kg, root_node):
+    queue = [root_node]
+    while queue:
+        cur_node = queue.pop(0)
+        for kid_tok in cur_node.token.children:
+            kid_node = Node(kid_tok, parent=cur_node)
+            cur_node.kids.append(kid_node)
+            queue.append(kid_node)
 
 
 def link_node_to_kids(kg, cur_node, child_nodes):
@@ -104,13 +85,9 @@ def text_to_graph_link_all(kg, text):
     Adds nodes and relationships from the sentences into knowledge graph (kg)
     """
     text = replace_pronouns(text)
-    new_text = text.replace(';', '.')
-    sentences = new_text.split(".")
-
-    for sentence in sentences:
-        tokens = nlp(sentence)
-        for t1 in tokens:
-            if t1.dep_ == 'ROOT':
-                root_node = build_tree_from_heads(kg, t1)
-                link_node_to_kids(kg, root_node, root_node.kids)
+    doc  = nlp(text)
+    for sentence in doc.sents:
+        root_node = Node(sentence.root)
+        build_tree_from_heads(kg, root_node)
+        link_node_to_kids(kg, root_node, root_node.kids)
 
