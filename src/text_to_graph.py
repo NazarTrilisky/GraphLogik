@@ -45,7 +45,6 @@ def build_tree_from_heads(kg, root_node):
 
 
 def link_to_upwards_node(kg, start_node):
-    start_node.visited = True
     path_info = []
     if start_node.token.pos_ not in NODE_POS:
         path_info.append(start_node.token.text)
@@ -58,6 +57,7 @@ def link_to_upwards_node(kg, start_node):
         path_info.append(cur_node.token.text)
 
     if cur_node.parent and cur_node.parent.token.pos_ in NODE_POS:
+        start_node.visited = True
         if start_node.token.pos_ in NODE_POS:
             for edge_str in path_info:
                 add_and_link_nodes(kg, start_node.token, cur_node.parent.token,
@@ -76,14 +76,22 @@ def bottom_up_node_connect(kg, root_node):
                 link_to_upwards_node(kg, kid_node)
 
 
-def erase_me_please(kg, cur_node, child_nodes):
-    for child_node in child_nodes:
-        if cur_node.token.pos_ in ['VERB', 'AUX']:
-            toks_to_link = [n.token for n in child_nodes]
-            pairs = list(combinations(toks_to_link, 2))
-            for pair in pairs:
-                add_and_link_nodes(kg, pair[0], pair[1],
-                                   {'label': cur_node.token.text})
+def top_down_node_connect(kg, root_node):
+    stack = [root_node]
+    while stack:
+        cur_node = stack.pop(-1)
+        for kid_node in cur_node.kids:
+            stack.append(kid_node)
+        if not cur_node.visited:
+            print(cur_node.token)
+
+    #for child_node in child_nodes:
+    #    if cur_node.token.pos_ in ['VERB', 'AUX']:
+    #        toks_to_link = [n.token for n in child_nodes]
+    #        pairs = list(combinations(toks_to_link, 2))
+    #        for pair in pairs:
+    #            add_and_link_nodes(kg, pair[0], pair[1],
+    #                               {'label': cur_node.token.text})
 
 
 def text_to_graph_link_all(kg, text):
@@ -98,4 +106,5 @@ def text_to_graph_link_all(kg, text):
         root_node = Node(sentence.root)
         build_tree_from_heads(kg, root_node)
         bottom_up_node_connect(kg, root_node)
+        top_down_node_connect(kg, root_node)
 
