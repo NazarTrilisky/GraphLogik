@@ -18,6 +18,7 @@ class Node:
         self.token = token
         self.parent = parent
         self.kids = []
+        self.visited = False
 
 
 def add_and_link_nodes(kg, tok1, tok2, edge_attrs):
@@ -43,17 +44,26 @@ def build_tree_from_heads(kg, root_node):
             queue.append(kid_node)
 
 
-def link_to_upwards_node(kg, cur_node):
-    if cur_node.token.pos_ in NODE_POS:
-        pass
-    else:
-        attrs = []
-        while (cur_node.parent and
-               cur_node.parent.token.pos_ not in NODE_POS):
-            cur_node = cur_node.parent
-            attrs.append(cur_node.token.text)
-        if cur_node.parent and cur_node.parent.token.pos_ in NODE_POS:
-            kg.addNode(cur_node.parent.token.text, label=str(attrs))
+def link_to_upwards_node(kg, start_node):
+    start_node.visited = True
+    path_info = []
+    if start_node.token.pos_ not in NODE_POS:
+        path_info.append(start_node.token.text)
+
+    # find next upwards node
+    cur_node = start_node
+    while (cur_node.parent and
+           cur_node.parent.token.pos_ not in NODE_POS):
+        cur_node = cur_node.parent
+        path_info.append(cur_node.token.text)
+
+    if cur_node.parent and cur_node.parent.token.pos_ in NODE_POS:
+        if start_node.token.pos_ in NODE_POS:
+            for edge_str in path_info:
+                add_and_link_nodes(kg, start_node.token, cur_node.parent.token,
+                                   {'label': edge_str})
+        else:
+            kg.addLabelToNode(cur_node.parent.token.text, str(path_info))
 
 
 def bottom_up_node_connect(kg, root_node):
@@ -62,8 +72,7 @@ def bottom_up_node_connect(kg, root_node):
         cur_node = stack.pop(-1)
         for kid_node in cur_node.kids:
             stack.append(kid_node)
-            if (not kid_node.kids and
-                kid_node.token.pos_ not in IGNORED_POS):
+            if (kid_node.token.pos_ not in IGNORED_POS and not kid_node.visited):
                 link_to_upwards_node(kg, kid_node)
 
 
