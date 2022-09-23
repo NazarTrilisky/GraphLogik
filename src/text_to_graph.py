@@ -8,7 +8,7 @@ from src.graph import KnowledgeGraph
 
 nlp = spacy.load('en_core_web_sm')
 
-IGNORED_POS = ['PUNCT']
+IGNORED_POS = ['PUNCT', 'CCONJ']
 NODE_POS    = ['NOUN', 'PRON', 'PROPN']
 ACTION_POS  = ['VERB', 'AUX']
 
@@ -82,16 +82,20 @@ def top_down_node_connect(kg, root_node):
         cur_node = stack.pop(-1)
         for kid_node in cur_node.kids:
             stack.append(kid_node)
-        if not cur_node.visited:
-            print(cur_node.token)
+            if cur_node.token.pos_ in ACTION_POS:
+                toks_to_link = [n.token for n in cur_node.kids]
+                pairs = list(combinations(toks_to_link, 2))
+                for pair in pairs:
+                    if pair[0].pos_ in NODE_POS and pair[1].pos_ in NODE_POS:
+                        add_and_link_nodes(kg, pair[0], pair[1],
+                                           {'label': cur_node.token.text})
+            elif cur_node.token.pos_ in NODE_POS:
+                pass
+                # parent is Node, so link it any child attributes and verbs
+            elif cur_node.token.pos_ not in IGNORED_POS:
+                pass
+                # parent is not action or node, add it as attribute to kids and parent?
 
-    #for child_node in child_nodes:
-    #    if cur_node.token.pos_ in ['VERB', 'AUX']:
-    #        toks_to_link = [n.token for n in child_nodes]
-    #        pairs = list(combinations(toks_to_link, 2))
-    #        for pair in pairs:
-    #            add_and_link_nodes(kg, pair[0], pair[1],
-    #                               {'label': cur_node.token.text})
 
 
 def text_to_graph_link_all(kg, text):

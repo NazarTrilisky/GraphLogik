@@ -13,8 +13,8 @@ def test_text_to_graph_link_all(show_graph=False):
     kg = KnowledgeGraph()
     text_to_graph_link_all(kg, story)
 
-    if show_graph:
-        kg.show()  # for humans only
+    #if show_graph:
+    #    kg.show()  # for humans only
 
     #assert kg.graph
     #assert kg.graph.number_of_nodes() > 5
