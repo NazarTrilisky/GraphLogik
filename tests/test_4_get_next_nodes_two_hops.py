@@ -15,7 +15,6 @@ def test_iterate_graph():
     kg = KnowledgeGraph()
     text_to_graph_link_all(kg, story)
 
-
     # first hop
     # key: node lemma, val: num times node hit
     visited_dict = defaultdict(lambda: 0)
@@ -31,13 +30,12 @@ def test_iterate_graph():
 
     assert visited_dict == {'merchant': 1}
     assert next_dict
-    assert 'children' in next_dict
-    assert next_dict['children'] >= 1
+    next_node_names = ['_'.join(x.split('_')[:-1]) for x in next_dict.keys()]
+    assert 'rich' in next_node_names
 
     # second hop
     second_lemmas, third_dict = kg.get_next_nodes(list(next_dict.keys()))
-    assert 'child' in second_lemmas
-    assert 'rich' in second_lemmas
+    assert 'rich' in ['_'.join(x.split('_')[:-1]) for x in second_lemmas]
     assert third_dict
     assert 'merchant' in third_dict
     assert third_dict['merchant'] >= 1

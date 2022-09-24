@@ -13,8 +13,8 @@ def test_get_next_nodes():
     text_to_graph_link_all(kg, story)
 
     cur_lemmas, next_nodes = kg.get_next_nodes(['merchant'])
-    assert 'children' in next_nodes
-    assert next_nodes['children'] >= 1
+    next_node_names = ['_'.join(x.split('_')[:-1]) for x in next_nodes.keys()]
+    assert 'rich' in next_node_names
     assert cur_lemmas == ['merchant']
 
 

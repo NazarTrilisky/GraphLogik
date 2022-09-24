@@ -49,7 +49,6 @@ def add_all_nodes_to_graph(kg, root_node):
     queue = [root_node]
     while queue:
         cur_node = queue.pop(0)
-        print("%s, %s, %s" % (cur_node.text, cur_node.pos_, cur_node.dep_))
         for kid_node in cur_node.kids:
             queue.append(kid_node)
             if (cur_node.pos_ not in IGNORED_POS and

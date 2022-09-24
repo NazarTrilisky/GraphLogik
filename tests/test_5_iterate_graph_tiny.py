@@ -20,7 +20,7 @@ def test_iterate_graph_loop_tiny():
     assert len(visited_dict) >= 4
     assert 'merchant' in visited_dict
     assert visited_dict['merchant'] >= 3
-    assert 'rich' in visited_dict
+    assert 'rich' in ['_'.join(x.split('_')[:-1]) for x in visited_dict.keys()]
 
 
 def test_iterate_graph_loop_no_infinite_loops():
