@@ -1,6 +1,4 @@
 
-from itertools import combinations
-
 import spacy
 from depronounize.depronounize import replace_pronouns
 from src.graph import KnowledgeGraph
@@ -8,30 +6,25 @@ from src.graph import KnowledgeGraph
 
 nlp = spacy.load('en_core_web_sm')
 
-IGNORED_POS = ['PUNCT', 'CCONJ']
+IGNORED_POS = ['PUNCT', 'SPACE']
 NODE_POS    = ['NOUN', 'PRON', 'PROPN']
-ACTION_POS  = ['VERB', 'AUX']
+
+name_counter = 0
 
 
 class Node:
-    def __init__(self, token, parent=None):
-        self.token = token
-        self.parent = parent
-        self.kids = []
-        self.visited = False
+    def __init__(self, token):
+        global name_counter
 
-
-def add_and_link_nodes(kg, tok1, tok2, edge_attrs):
-    if (
-        tok1.lemma_.lower() != tok2.lemma_.lower() and
-        tok1.text.strip() and
-        tok2.text.strip()
-    ):
-        t1 = tok1.text.lower()
-        t2 = tok2.text.lower()
-        kg.addNode(t1)
-        kg.addNode(t2)
-        kg.addEdge(t1, t2, **edge_attrs)
+        self.token      = token
+        self.kids       = []
+        self.dep_       = token.dep_
+        self.pos_       = token.pos_
+        self.text       = token.text
+        self.name       = token.text
+        if token.pos_ not in NODE_POS:
+            self.name   = token.text + "_" + str(name_counter)
+            name_counter += 1
 
 
 def build_tree_from_heads(kg, root_node):
@@ -39,69 +32,40 @@ def build_tree_from_heads(kg, root_node):
     while queue:
         cur_node = queue.pop(0)
         for kid_tok in cur_node.token.children:
-            kid_node = Node(kid_tok, parent=cur_node)
+            kid_node = Node(kid_tok)
             cur_node.kids.append(kid_node)
             queue.append(kid_node)
 
 
-def link_to_upwards_node(kg, start_node):
-    path_info = []
-    if start_node.token.pos_ not in NODE_POS:
-        path_info.append(start_node.token.text)
-
-    # find next upwards node
-    cur_node = start_node
-    while (cur_node.parent and
-           cur_node.parent.token.pos_ not in NODE_POS):
-        cur_node = cur_node.parent
-        path_info.append(cur_node.token.text)
-
-    if cur_node.parent and cur_node.parent.token.pos_ in NODE_POS:
-        start_node.visited = True
-        if start_node.token.pos_ in NODE_POS:
-            for edge_str in path_info:
-                add_and_link_nodes(kg, start_node.token, cur_node.parent.token,
-                                   {'label': edge_str})
-        else:
-            kg.addLabelToNode(cur_node.parent.token.text, str(path_info))
+def addConnectorNode(kg, name):
+    global name_counter
+    unique_name = name + "_" + str(name_counter)
+    kg.addNode(unique_name)
+    name_counter += 1
+    return unique_name
 
 
-def bottom_up_node_connect(kg, root_node):
-    stack = [root_node]
-    while stack:
-        cur_node = stack.pop(-1)
+def add_all_nodes_to_graph(kg, root_node):
+    queue = [root_node]
+    while queue:
+        cur_node = queue.pop(0)
+        print("%s, %s, %s" % (cur_node.text, cur_node.pos_, cur_node.dep_))
         for kid_node in cur_node.kids:
-            stack.append(kid_node)
-            if (kid_node.token.pos_ not in IGNORED_POS and not kid_node.visited):
-                link_to_upwards_node(kg, kid_node)
-
-
-def top_down_node_connect(kg, root_node):
-    stack = [root_node]
-    while stack:
-        cur_node = stack.pop(-1)
-        for kid_node in cur_node.kids:
-            stack.append(kid_node)
-            if cur_node.token.pos_ in ACTION_POS:
-                toks_to_link = [n.token for n in cur_node.kids]
-                pairs = list(combinations(toks_to_link, 2))
-                for pair in pairs:
-                    if pair[0].pos_ in NODE_POS and pair[1].pos_ in NODE_POS:
-                        add_and_link_nodes(kg, pair[0], pair[1],
-                                           {'label': cur_node.token.text})
-            elif cur_node.token.pos_ in NODE_POS:
-                pass
-                # parent is Node, so link it any child attributes and verbs
-            elif cur_node.token.pos_ not in IGNORED_POS:
-                pass
-                # parent is not action or node, add it as attribute to kids and parent?
-
+            queue.append(kid_node)
+            if (cur_node.pos_ not in IGNORED_POS and
+                kid_node.pos_ not in IGNORED_POS and
+                cur_node.text.strip() and
+                kid_node.text.strip()):
+                kg.addNode(kid_node.name)
+                kg.addNode(cur_node.name)
+                kg.addEdge(cur_node.name, kid_node.name)
 
 
 def text_to_graph_link_all(kg, text):
     """
     Adds nodes and relationships from the sentences into knowledge graph (kg)
     """
+    text = text.replace(';', '.')
     text = replace_pronouns(text)
     doc  = nlp(text)
     #from spacy import displacy
@@ -109,6 +73,5 @@ def text_to_graph_link_all(kg, text):
     for sentence in doc.sents:
         root_node = Node(sentence.root)
         build_tree_from_heads(kg, root_node)
-        bottom_up_node_connect(kg, root_node)
-        top_down_node_connect(kg, root_node)
+        add_all_nodes_to_graph(kg, root_node)
 

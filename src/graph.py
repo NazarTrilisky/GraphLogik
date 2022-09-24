@@ -18,19 +18,23 @@ class KnowledgeGraph:
 
     def addNode(self, text, **args):
         """ idempotent operation """
-        self.graph.add_node(text, **args)
+        self.graph.add_node(text.strip().lower(), **args)
 
 
     def addLabelToNode(self, node_name, label_str):
-        if not node_name in self.graph.nodes:
-            self.graph.add_node(node_name, label=label_str)
-        else:
-            cur_node = self.graph.nodes[node_name]
-            cur_node['label'] += label_str
+        if node_name.strip() and label_str.strip():
+            if not node_name in self.graph.nodes:
+                self.graph.add_node(node_name.strip().lower(), label=label_str)
+            else:
+                cur_node = self.graph.nodes[node_name]
+                if 'label' not in cur_node.keys():
+                    cur_node['label'] = label_str
+                else:
+                    cur_node['label'] += label_str
 
 
     def addEdge(self, n1, n2, **args):
-        self.graph.add_edge(n1, n2, **args)
+        self.graph.add_edge(n1.strip().lower(), n2.strip().lower(), **args)
 
 
     def show(self):
