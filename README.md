@@ -19,5 +19,7 @@
 
 ## ToDo
 * Switch to a more powerful Graph DB than networkx.
+    - neo4j, other...
 * Ingest sample PDFs and analyze logic.
+    - pdfminer: https://pdfminersix.readthedocs.io/en/latest/tutorial/composable.html
 
