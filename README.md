@@ -16,8 +16,3 @@
 1. cd <top-level workspace>
 2. python -m pytest tests
 
-
-## ToDo
-* Switch to a more powerful Graph DB than networkx.
-    - neo4j, other...
-
