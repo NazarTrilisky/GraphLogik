@@ -13,5 +13,5 @@
 
 ## Testing
 1. cd <top-level workspace>
-2. python -m pytest tests
+2. pytest tests
 

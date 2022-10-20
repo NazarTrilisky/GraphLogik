@@ -1,5 +1,7 @@
 
 import spacy
+from collections import defaultdict
+
 from depronounize.depronounize import replace_pronouns
 from src.graph import KnowledgeGraph
 
@@ -9,13 +11,12 @@ nlp = spacy.load('en_core_web_sm')
 IGNORED_POS = ['PUNCT', 'SPACE']
 NODE_POS    = ['NOUN', 'PRON', 'PROPN']
 
-name_counter = 0
+# add int to ensure unique node names
+name_count_dict = defaultdict(lambda: 0)
 
 
 class Node:
     def __init__(self, token):
-        global name_counter
-
         self.token      = token
         self.kids       = []
         self.dep_       = token.dep_
@@ -23,8 +24,8 @@ class Node:
         self.text       = token.text
         self.name       = token.text
         if token.pos_ not in NODE_POS:
-            self.name   = token.text + "_" + str(name_counter)
-            name_counter += 1
+            self.name   = token.text + "_" + str(name_count_dict[token.text])
+            name_count_dict[token.text] += 1
 
 
 def build_tree_from_heads(kg, root_node):
@@ -38,10 +39,9 @@ def build_tree_from_heads(kg, root_node):
 
 
 def addConnectorNode(kg, name):
-    global name_counter
-    unique_name = name + "_" + str(name_counter)
+    unique_name = name + "_" + str(name_count_dict[name])
     kg.addNode(unique_name)
-    name_counter += 1
+    name_count_dict[name] += 1
     return unique_name
 
 
