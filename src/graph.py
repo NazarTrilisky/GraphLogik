@@ -37,7 +37,7 @@ class KnowledgeGraph:
         self.graph.add_edge(n1.strip().lower(), n2.strip().lower(), **args)
 
 
-    def show(self):
+    def draw_graph(self):
         s_layout = nx.spring_layout(self.graph)
         node_labels_layout = \
             {n:(x, y+0.1) for n,(x,y) in s_layout.items()}
@@ -48,7 +48,17 @@ class KnowledgeGraph:
                                 labels=node_labels)
         edge_labels = nx.get_edge_attributes(self.graph, 'label')
         nx.draw_networkx_edge_labels(self.graph, s_layout, edge_labels)
+
+
+    def show(self):
+        self.draw_graph()
         plt.show()
+
+
+    def save(self, name="graph_image.png"):
+        self.draw_graph()
+        plt.savefig(name)
+
 
     def get_next_nodes(self, cur_lemmas):
         """
