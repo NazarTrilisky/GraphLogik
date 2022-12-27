@@ -57,7 +57,13 @@ def add_all_nodes_to_graph(kg, root_node):
                 kid_node.text.strip()):
                 kg.addNode(kid_node.name)
                 kg.addNode(cur_node.name)
-                kg.addEdge(cur_node.name, kid_node.name)
+                edge_data = kg.graph.get_edge_data(kid_node.name,
+                                                   cur_node.name)
+                # rerunning neural paths is strengthening the connections
+                if edge_data: # edge already exists
+                    kg.graph[kid_node.name][cur_node.name]['weight'] += 1
+                else:
+                    kg.addEdge(cur_node.name, kid_node.name, weight=1)
 
 
 def text_to_graph_link_all(kg, text):
