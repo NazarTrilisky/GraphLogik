@@ -41,7 +41,7 @@ def iterate_graph(kg, start_words, max_hops=5):
         val = num times word was hit when traversing the graph
     """
     visited_dict = defaultdict(lambda: 0)
-    next_dict = get_next_nodes(start_words)
+    next_dict = get_next_nodes(kg, start_words)
     counter = 0
 
     while next_dict:
@@ -51,9 +51,8 @@ def iterate_graph(kg, start_words, max_hops=5):
 
         next_keys = [x for x in next_dict.keys()]
         for key in next_keys:
-            if key in visited_dict:
-                visited_dict[key] += next_dict[key]
-                del next_dict[key]
+            visited_dict[key] += next_dict[key]
+            del next_dict[key]
 
         next_dict = get_next_nodes(kg, next_dict.keys())
 

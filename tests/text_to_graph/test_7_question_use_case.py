@@ -5,6 +5,7 @@
 import sys
 sys.path.insert(0, '.')
 
+from src.query import iterate_graph
 from src.graph import KnowledgeGraph
 from src.text_to_graph import text_to_graph_link_all
 
@@ -19,7 +20,7 @@ def test_iterate_graph_loop_use_case():
 
     start_text = "Why were the sisters jealous?"
     start_words = start_text.split()
-    visited_dict = kg.iterate_graph(start_words, max_hops=10)
+    visited_dict = iterate_graph(kg, start_words, max_hops=10)
     sorted_dict = dict(sorted(visited_dict.items(),
                               key=lambda x: x[1],
                               reverse=True))
