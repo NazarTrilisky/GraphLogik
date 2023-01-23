@@ -16,6 +16,10 @@ name_count_dict = defaultdict(lambda: 0)
 
 
 class Node:
+    """
+    Intermediate class used for converting text to knowledge graph
+    Not the same as "Node" class in graph.py
+    """
     def __init__(self, token):
         self.token      = token
         self.kids       = []
@@ -57,11 +61,9 @@ def add_all_nodes_to_graph(kg, root_node):
                 kid_node.text.strip()):
                 kg.addNode(kid_node.name)
                 kg.addNode(cur_node.name)
-                edge_data = kg.graph.get_edge_data(kid_node.name,
-                                                   cur_node.name)
                 # rerunning neural paths is strengthening the connections
-                if edge_data: # edge already exists
-                    kg.graph[kid_node.name][cur_node.name]['weight'] += 1
+                if kg.edgeExists(kid_node.name, cur_node.name):
+                    kg.graph[kid_node.name].edges[cur_node.name] += 1
                 else:
                     kg.addEdge(cur_node.name, kid_node.name, weight=1)
 
@@ -73,8 +75,6 @@ def text_to_graph_link_all(kg, text):
     text = text.replace(';', '.')
     text = replace_pronouns(text)
     doc  = nlp(text)
-    #from spacy import displacy
-    #displacy.serve(doc, style="dep")
     for sentence in doc.sents:
         root_node = Node(sentence.root)
         build_tree_from_heads(kg, root_node)

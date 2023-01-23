@@ -1,73 +1,70 @@
 
 import pickle
-import spacy
-import networkx as nx
-from networkx.exception import NetworkXError
-import matplotlib.pyplot as plt
-
 from collections import defaultdict
 
 
-nlp = spacy.load('en_core_web_sm')
+class GraphException(Exception):
+    pass
+
+
+class Node:
+    def __init__(self, name, edges=defaultdict(lambda: {}), attrs={}):
+        """
+        @arg: name: string
+        """
+        self.name  = name
+        self.edges = edges  # dict with key = next node name, val = weight int
+        self.attrs = attrs  # dict with key = attribute name, attribute value string
 
 
 class KnowledgeGraph:
 
     def __init__(self):
-        self.graph = nx.Graph()
+        # key = node name (case sensitive)
+        # val = Node class instance
+        self.graph = {}
+        self.num_edges = 0
 
 
-    def addNode(self, text, **args):
+    def addNode(self, node_name, **args):
         """ idempotent operation """
-        self.graph.add_node(text.strip().lower(), **args)
+        if node_name in self.graph:
+            self.graph[node_name].attrs.update(args)
+        else:
+            self.graph[node_name] = Node(node_name)
 
 
-    def addLabelToNode(self, node_name, label_str):
-        if node_name.strip() and label_str.strip():
-            if not node_name in self.graph.nodes:
-                self.graph.add_node(node_name.strip().lower(), label=label_str)
-            else:
-                cur_node = self.graph.nodes[node_name]
-                if 'label' not in cur_node.keys():
-                    cur_node['label'] = label_str
-                else:
-                    cur_node['label'] += label_str
+    def addEdge(self, n1, n2, weight=1):
+        """ idempotent operation """
+        if n1 not in self.graph or n2 not in self.graph:
+            msg = "Adding edge between nodes that do Not exist: "
+            msg += "{} and {}".format(n1, n2)
+            raise GraphException(msg)
+
+        if not self.edgeExists(n1, n2):
+            self.num_edges += 1
+
+        self.graph[n1].edges[n2] = weight
+        self.graph[n2].edges[n1] = weight
 
 
-    def addEdge(self, n1, n2, **args):
-        self.graph.add_edge(n1.strip().lower(), n2.strip().lower(), **args)
-
-
-    def draw_graph(self):
-        s_layout = nx.spring_layout(self.graph)
-        node_labels_layout = \
-            {n:(x, y+0.1) for n,(x,y) in s_layout.items()}
-
-        nx.draw(self.graph, s_layout, with_labels=True)
-        node_labels = nx.get_node_attributes(self.graph, 'label')
-        nx.draw_networkx_labels(self.graph, node_labels_layout,
-                                labels=node_labels)
-        edge_labels = nx.get_edge_attributes(self.graph, 'label')
-        nx.draw_networkx_edge_labels(self.graph, s_layout, edge_labels)
+    def edgeExists(self, n1, n2):
+        if n1 not in self.graph or n2 not in self.graph:
+            return False
+        return n2 in self.graph[n1].edges
 
 
     def show(self):
-        self.draw_graph()
-        plt.show()
+        print("Num nodes = {}".format(len(self.graph)))
 
 
-    def save_image(self, file_name="graph_image.png"):
-        self.draw_graph()
-        plt.savefig(file_name)
-
-
-    def save_pickle(self, file_name='graph_obj.pkl'):
+    def save_graph(self, file_name):
         with open(file_name, 'wb') as fh:
             pickle.dump(self, fh)
 
 
     @staticmethod
-    def load_pickle(file_name='graph_obj.pkl'):
+    def load_graph(file_name):
         with open(file_name, 'rb') as fh:
             graph_obj = pickle.load(fh)
         return graph_obj

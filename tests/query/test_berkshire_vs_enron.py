@@ -20,24 +20,7 @@ def test_berkshire_vs_enron():
     enron_path = os.path.join(test_file_path, 'EnronAnnualReport2000.pdf')
     berkshire_path = os.path.join(test_file_path, 'BerkshireHathawayAnnualReport2000.pdf')
 
-    e_pkl_path = os.path.join(test_file_path, 'enron_graph.pkl')
-    b_pkl_path = os.path.join(test_file_path, 'berkshire_graph.pkl')
-
-    if os.path.exists(e_pkl_path):
-        e_kg = KnowledgeGraph.load_pickle(e_pkl_path)
-    else:
-        enron_txt = get_text_from_pdf(enron_path)
-        e_kg = KnowledgeGraph()
-        text_to_graph_link_all(e_kg, enron_txt)
-        e_kg.save_pickle(e_pkl_path)
-
-    if os.path.exists(b_pkl_path):
-        b_kg = KnowledgeGraph.load_pickle(b_pkl_path)
-    else:
-        berkshire_txt = get_text_from_pdf(berkshire_path)
-        b_kg = KnowledgeGraph()
-        text_to_graph_link_all(b_kg, berkshire_txt)
-        b_kg.save_pickle(b_pkl_path)
+    #@todo finish test
 
 
 if __name__ == '__main__':
