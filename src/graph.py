@@ -1,4 +1,5 @@
 
+import pickle
 import spacy
 import networkx as nx
 from networkx.exception import NetworkXError
@@ -55,7 +56,19 @@ class KnowledgeGraph:
         plt.show()
 
 
-    def save(self, name="graph_image.png"):
+    def save_image(self, file_name="graph_image.png"):
         self.draw_graph()
-        plt.savefig(name)
+        plt.savefig(file_name)
+
+
+    def save_pickle(self, file_name='graph_obj.pkl'):
+        with open(file_name, 'wb') as fh:
+            pickle.dump(self, fh)
+
+
+    @staticmethod
+    def load_pickle(file_name='graph_obj.pkl'):
+        with open(file_name, 'rb') as fh:
+            graph_obj = pickle.load(fh)
+        return graph_obj
 
