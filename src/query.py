@@ -1,6 +1,5 @@
 
 import spacy
-from networkx.exception import NetworkXError
 
 from collections import defaultdict
 
@@ -19,16 +18,10 @@ def get_next_nodes(kg, node_names):
     # key = node name, value = strength of relationship
     nodes_dict = defaultdict(lambda: 0)
     for cur_name in node_names:
-        try:
-            cur_neighbors = kg.graph[cur_name].edges.keys()
-        except NetworkXError as err:
-            if 'not in the graph' in str(err).lower():
-                continue
-            else:
-                raise err
-
-        for nbr in cur_neighbors:
-            nodes_dict[nbr] += 1
+        if cur_name in kg.nodes:
+            cur_neighbors = kg.nodes[cur_name].edges.keys()
+            for nbr in cur_neighbors:
+                nodes_dict[nbr] += 1
 
     return nodes_dict
 

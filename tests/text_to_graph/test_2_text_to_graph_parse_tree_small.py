@@ -15,12 +15,12 @@ def test_text_to_graph_link_all_small_text(show_graph=False):
     if show_graph:
         kg.show()  # for humans
 
-    assert kg.graph
-    assert len(kg.graph) > 20
+    assert kg.nodes
+    assert len(kg.nodes) > 20
     assert kg.num_edges > 20
 
 
 if __name__ == '__main__':
-    test_text_to_graph_link_all_small_text(True)
+    test_text_to_graph_link_all_small_text()
     print("Passed")
 

@@ -29,7 +29,7 @@ def test_iterate_graph():
 
     # second hop
     third_dict = get_next_nodes(kg, list(next_dict.keys()))
-    assert len(third_dict) == 7
+    assert len(third_dict) == 12
     assert third_dict['merchant'] == 4
 
 

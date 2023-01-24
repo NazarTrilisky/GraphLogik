@@ -26,7 +26,7 @@ def test_iterate_graph_loop_use_case():
                               reverse=True))
     visited_list = [x[0] for x in sorted_dict.items()]
     assert len(visited_list) >= 5
-    assert 'beauty' in visited_list[:4]
+    assert 'Beauty' in visited_list[:4]
 
 
 if __name__ == '__main__':

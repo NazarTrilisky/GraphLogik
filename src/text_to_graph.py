@@ -3,69 +3,57 @@ import spacy
 from collections import defaultdict
 
 from depronounize.depronounize import replace_pronouns
-from src.graph import KnowledgeGraph
+from src.graph import KnowledgeGraph, DEFAULT_WEIGHT
 
 
 nlp = spacy.load('en_core_web_sm')
 
 IGNORED_POS = ['PUNCT', 'SPACE']
 NODE_POS    = ['NOUN', 'PRON', 'PROPN']
+LEARN_STEP  = 1
 
 # add int to ensure unique node names
 name_count_dict = defaultdict(lambda: 0)
 
 
-class Node:
-    """
-    Intermediate class used for converting text to knowledge graph
-    Not the same as "Node" class in graph.py
-    """
-    def __init__(self, token):
-        self.token      = token
-        self.kids       = []
-        self.dep_       = token.dep_
-        self.pos_       = token.pos_
-        self.text       = token.text
-        self.name       = token.text
-        if token.pos_ not in NODE_POS:
-            self.name   = token.text + "_" + str(name_count_dict[token.text])
-            name_count_dict[token.text] += 1
-
-
-def build_tree_from_heads(kg, root_node):
-    queue = [root_node]
+def build_tree_from_heads(kg, root_tok):
+    queue = [root_tok]
     while queue:
-        cur_node = queue.pop(0)
-        for kid_tok in cur_node.token.children:
-            kid_node = Node(kid_tok)
-            cur_node.kids.append(kid_node)
-            queue.append(kid_node)
+        cur_tok = queue.pop(0)
+        for kid_tok in cur_tok.children:
+            queue.append(kid_tok)
+            add_and_link_nodes(kg, cur_tok, kid_tok)
 
 
-def addConnectorNode(kg, name):
-    unique_name = name + "_" + str(name_count_dict[name])
-    kg.addNode(unique_name)
-    name_count_dict[name] += 1
-    return unique_name
+def add_and_link_nodes(kg, tok1, tok2):
+    t1_txt = tok1.text.strip()
+    t2_txt = tok2.text.strip()
+    if (tok1.pos_ not in IGNORED_POS and tok2.pos_ not in IGNORED_POS
+        and t1_txt and t2_txt):
+        name1 = checkAndAddNode(kg, tok1)
+        name2 = checkAndAddNode(kg, tok2)
+        # rerunning neural paths is strengthening the connections
+        if name1 != name2:
+            if kg.edgeExists(name1, name2):
+                kg.nodes[name1].edges[name2] += LEARN_STEP
+                kg.nodes[name2].edges[name1] += LEARN_STEP
+            else:
+                kg.addEdge(name1, name2, weight=DEFAULT_WEIGHT)
 
 
-def add_all_nodes_to_graph(kg, root_node):
-    queue = [root_node]
-    while queue:
-        cur_node = queue.pop(0)
-        for kid_node in cur_node.kids:
-            queue.append(kid_node)
-            if (cur_node.pos_ not in IGNORED_POS and
-                kid_node.pos_ not in IGNORED_POS and
-                cur_node.text.strip() and
-                kid_node.text.strip()):
-                kg.addNode(kid_node.name)
-                kg.addNode(cur_node.name)
-                # rerunning neural paths is strengthening the connections
-                if kg.edgeExists(kid_node.name, cur_node.name):
-                    kg.graph[kid_node.name].edges[cur_node.name] += 1
-                else:
-                    kg.addEdge(cur_node.name, kid_node.name, weight=1)
+def checkAndAddNode(kg, tok):
+    name = tok.text
+    if tok.pos_ not in NODE_POS:
+        name = name + "_" + str(name_count_dict[name])
+        name_count_dict[name] += 1
+
+    kg.addNode(name)
+    return name
+
+
+def show_doc_dependency_tree(doc):
+    from spacy import displacy
+    displacy.serve(doc, style="dep")
 
 
 def text_to_graph_link_all(kg, text):
@@ -75,11 +63,7 @@ def text_to_graph_link_all(kg, text):
     text = text.replace(';', '.')
     text = replace_pronouns(text)
     doc  = nlp(text)
+
     for sentence in doc.sents:
-        root_node = Node(sentence.root)
-        build_tree_from_heads(kg, root_node)
-        import pdb
-        pdb.set_trace()
-        add_all_nodes_to_graph(kg, root_node)
-        pass
+        build_tree_from_heads(kg, sentence.root)
 
