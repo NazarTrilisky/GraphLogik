@@ -78,5 +78,8 @@ def text_to_graph_link_all(kg, text):
     for sentence in doc.sents:
         root_node = Node(sentence.root)
         build_tree_from_heads(kg, root_node)
+        import pdb
+        pdb.set_trace()
         add_all_nodes_to_graph(kg, root_node)
+        pass
 

@@ -16,8 +16,8 @@ def test_text_to_graph_link_all_small_text(show_graph=False):
         kg.show()  # for humans
 
     assert kg.graph
-    assert kg.graph.number_of_nodes() > 20
-    assert len(kg.graph.edges) > 20
+    assert len(kg.graph) > 20
+    assert kg.num_edges > 20
 
 
 if __name__ == '__main__':

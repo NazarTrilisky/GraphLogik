@@ -20,7 +20,7 @@ def get_next_nodes(kg, node_names):
     nodes_dict = defaultdict(lambda: 0)
     for cur_name in node_names:
         try:
-            cur_neighbors = kg.graph.neighbors(cur_name)
+            cur_neighbors = kg.graph[cur_name].edges.keys()
         except NetworkXError as err:
             if 'not in the graph' in str(err).lower():
                 continue
