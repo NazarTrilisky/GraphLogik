@@ -1,24 +1,11 @@
 
-from io import StringIO
-
-from pdfminer.converter import TextConverter
-from pdfminer.layout import LAParams
-from pdfminer.pdfdocument import PDFDocument
-from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer.pdfpage import PDFPage
-from pdfminer.pdfparser import PDFParser
+from PyPDF2 import PdfReader
 
 
 def get_text_from_pdf(file_path):
-    output_string = StringIO()
-    with open(file_path, 'rb') as in_file:
-        parser = PDFParser(in_file)
-        doc = PDFDocument(parser)
-        rsrcmgr = PDFResourceManager()
-        device = TextConverter(rsrcmgr, output_string, laparams=LAParams())
-        interpreter = PDFPageInterpreter(rsrcmgr, device)
-        for page in PDFPage.create_pages(doc):
-            interpreter.process_page(page)
-
-        return output_string.getvalue()
+    full_txt = ""
+    reader = PdfReader(file_path)
+    for page in reader.pages:
+        full_txt += "\n" + page.extract_text()
+    return full_txt
 

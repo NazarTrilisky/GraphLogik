@@ -26,4 +26,4 @@ wasabi==0.8.2
 depronounize==1.0.10
 spacy
 pytest==7.1.2
-pdfminer==20191125
+PyPDF2==3.0.1

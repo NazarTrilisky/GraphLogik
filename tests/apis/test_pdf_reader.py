@@ -8,7 +8,7 @@ def test_get_text_from_pdf_file():
     file_path = 'tests/files/EnronAnnualReport2000.pdf'
     txt       = get_text_from_pdf(file_path)
 
-    assert len(txt) == 242571
+    assert len(txt) == 229006
     assert "Items impacting comparability" in txt
 
 
