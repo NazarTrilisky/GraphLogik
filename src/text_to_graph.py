@@ -47,7 +47,7 @@ def checkAndAddNode(kg, tok):
         name = name + "_" + str(name_count_dict[name])
         name_count_dict[name] += 1
 
-    kg.addNode(name)
+    kg.addNode(name, pos_=tok.pos_, dep_=tok.dep_)
     return name
 
 

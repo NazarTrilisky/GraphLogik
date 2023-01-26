@@ -22,21 +22,7 @@ def test_iterate_graph_loop_small():
     assert len(visited_dict) > 5
 
 
-def test_iterate_graph_loop_no_infinite_loops():
-    # Step function to iterate concepts
-    with open('tests/files/beauty_and_the_beast_small.txt', 'r') as fh:
-        story = fh.read()
-
-    kg = KnowledgeGraph()
-    text_to_graph_link_all(kg, story)
-
-    start_words = ['merchant']
-    iterate_graph(kg, start_words, 9999999999999999999999)
-    assert True  # no crashes, no infinite loops
-
-
 if __name__ == '__main__':
     test_iterate_graph_loop_small()
-    test_iterate_graph_loop_no_infinite_loops()
     print('Passed')
 

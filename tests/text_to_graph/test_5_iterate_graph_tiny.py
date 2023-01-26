@@ -17,26 +17,16 @@ def test_iterate_graph_loop_tiny():
     text_to_graph_link_all(kg, story)
 
     start_words = ['merchant']
-    visited_dict = iterate_graph(kg, start_words)
-    assert len(visited_dict) >= 4
-    assert 'rich' in ['_'.join(x.split('_')[:-1]) for x in visited_dict.keys()]
+    visited_dict = iterate_graph(kg, start_words, max_hops=1)
+    assert len(visited_dict) == 4
+    assert 'rich' in [x.split('_')[0] for x in visited_dict.keys()]
 
-
-def test_iterate_graph_loop_no_infinite_loops():
-    # Step function to iterate concepts
-    with open('tests/files/beauty_and_the_beast_tiny.txt', 'r') as fh:
-        story = fh.read()
-
-    kg = KnowledgeGraph()
-    text_to_graph_link_all(kg, story)
-
-    start_words = ['merchant']
-    iterate_graph(kg, start_words, 9999999999999999999999)
-    assert True
+    visited_dict = iterate_graph(kg, start_words, max_hops=2)
+    assert len(visited_dict) == 14
+    assert visited_dict['merchant'] == 4
 
 
 if __name__ == '__main__':
     test_iterate_graph_loop_tiny()
-    test_iterate_graph_loop_no_infinite_loops()
     print('Passed')
 

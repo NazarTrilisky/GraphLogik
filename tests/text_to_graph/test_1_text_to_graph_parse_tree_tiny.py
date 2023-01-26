@@ -12,12 +12,17 @@ def test_text_to_graph_one_sentence():
     text_to_graph_link_all(kg, txt)
     assert len(kg.nodes) == 14
     assert kg.num_edges == 15
-    assert not kg.nodes['merchant'].attrs
+
+    assert len(kg.nodes['merchant'].attrs) == 2
+    assert kg.nodes['merchant'].attrs['pos_'] == 'NOUN'
+    assert kg.nodes['merchant'].attrs['dep_'] == 'nsubj'
+
     assert len(kg.nodes['merchant'].edges) == 4
     for node_name in ['was_0', 'a_0', 'rich_0', 'had_0']:
         assert node_name in kg.nodes
+
     kg.updateNodeAttrs('merchant', net_worth=100000, age=59)
-    assert len(kg.nodes['merchant'].attrs) == 2
+    assert len(kg.nodes['merchant'].attrs) == 4
     assert kg.nodes['merchant'].attrs['net_worth'] == 100000
     assert kg.nodes['merchant'].attrs['age'] == 59
     assert len(kg.nodes['merchant'].edges) == 4
