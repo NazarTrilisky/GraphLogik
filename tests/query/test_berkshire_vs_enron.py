@@ -8,11 +8,10 @@ from collections import defaultdict
 sys.path.insert(0, '.')
 from src.graph import KnowledgeGraph
 from src.text_to_graph import text_to_graph_link_all
-from src.query import get_next_nodes
+from src.query import iterate_graph
 from src.apis.pdf_to_text import get_text_from_pdf
 
 
-#@todo update to use graph db
 def test_berkshire_vs_enron():
     test_file_path = pathlib.Path(__file__).parents[1].resolve()
     test_file_path = os.path.join(test_file_path, 'files')
@@ -38,19 +37,25 @@ def test_berkshire_vs_enron():
         text_to_graph_link_all(b_kg, b_txt)
         b_kg.save_graph(b_pkl_path)
 
-    # first hop
-    visited_dict = defaultdict(lambda: 0)
-    next_dict = get_next_nodes(e_kg, ['purchase'])
+    #@todo check combinations
+    #SEARCH_LIST = ['compliance', 'earnings', 'sustainable']
+    SEARCH_LIST = ["corrupt", "scam", "debt", "borrow", "inflated"]
 
-    #assert len(next_dict) > 15
-    #assert 'contracts' in next_dict.keys()
+    def print_visited(kg_obj):
+        visited_dict = iterate_graph(kg_obj, SEARCH_LIST, max_hops=15)
+        top_nodes = {k: v for k, v in sorted(visited_dict.items(), key=lambda item: item[1], reverse=True)}
+        for x in list(top_nodes.items())[:15]:
+            print(x)
 
+    print("---------------------\nEnron:")
+    print_visited(e_kg)
+    print("---------------------\nBerkshire:")
+    print_visited(b_kg)
 
-
-    #@todo finish test
 
 
 if __name__ == '__main__':
     test_berkshire_vs_enron()
     print('passed')
+    #@todo finish test
 
