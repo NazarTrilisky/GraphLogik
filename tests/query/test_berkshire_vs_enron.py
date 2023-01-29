@@ -39,12 +39,13 @@ def test_berkshire_vs_enron():
 
     #@todo check combinations
     #SEARCH_LIST = ['compliance', 'earnings', 'sustainable']
-    SEARCH_LIST = ["corrupt", "scam", "debt", "borrow", "inflated"]
+    SEARCH_LIST = ["corrupt"] #, "scam", "debt", "borrow", "inflated"]
 
     def print_visited(kg_obj):
-        visited_dict = iterate_graph(kg_obj, SEARCH_LIST, max_hops=15)
-        top_nodes = {k: v for k, v in sorted(visited_dict.items(), key=lambda item: item[1], reverse=True)}
-        for x in list(top_nodes.items())[:15]:
+        visited_dict = iterate_graph(kg_obj, SEARCH_LIST, max_hops=1)
+        top_nodes = [(k, v) for k, v in sorted(visited_dict.items(),
+                     key=lambda item: item[1], reverse=True)]
+        for x in top_nodes[:15]:
             print(x)
 
     print("---------------------\nEnron:")
