@@ -5,6 +5,11 @@ import spacy
 from src.visualizer import DisplayGraph
 
 
+#@todo: baseline is bershire graph: compare how enron relations stand out
+# idea: find how differently enron treated debt and losses compared to berkshire
+# by looking at debt/loss relationships with other concepts (earnings, transparency, etc.)
+# Preferably expand this to 10+ successful and unsuccessful company annual reports
+
 def get_next_nodes(kg, word):
     """
     arg: kg = KnowledgeGraph object
@@ -34,22 +39,30 @@ def iterate_graph(kg, start_words, max_hops=5):
     visited_dict = defaultdict(lambda: 0)
     counter = 0
 
-    next_dict = {}
-    for word in start_words:
-        next_dict.update(get_next_nodes(kg, word))
+    #@todo remove DisplayGraph code
+    dgr = DisplayGraph()
+    TO_DISPLAY_POS = ['NOUN']
 
+    next_dict = {k:1 for k in start_words}
     IGNORED_POS = ['ADP', 'DET']
+
     while next_dict and counter < max_hops:
         counter += 1
+        new_next_dict = {}
         for word in next_dict:
             if (word not in visited_dict and
                 kg.nodes[word].attrs['pos_'] not in IGNORED_POS):
                 visited_dict[word] = next_dict[word]
+                nxt_dict = get_next_nodes(kg, word)
+                for next_word in nxt_dict:
+                    new_next_dict[next_word] = nxt_dict[next_word]
+                    dgr.addNode(word)
+                    dgr.addNode(next_word)
+                    dgr.addEdge(word, next_word)
 
-        words = list(next_dict.keys())
-        next_dict = {}
-        for word in words:
-            next_dict.update(get_next_nodes(kg, word))
+        next_dict = new_next_dict
+
+    #dgr.show()  #@todo uncomment for testing annual reports again
 
     return visited_dict
 

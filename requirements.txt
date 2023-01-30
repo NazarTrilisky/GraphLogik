@@ -27,3 +27,4 @@ depronounize==1.0.10
 spacy
 pytest==7.1.2
 PyPDF2==3.0.1
+scipy==1.10.0

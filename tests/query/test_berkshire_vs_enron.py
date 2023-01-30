@@ -55,7 +55,6 @@ def test_berkshire_vs_enron():
     print_visited(b_kg)
 
 
-
 if __name__ == '__main__':
     test_berkshire_vs_enron()
     print('passed')
