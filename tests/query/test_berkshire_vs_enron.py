@@ -39,7 +39,8 @@ def test_berkshire_vs_enron():
 
     #@todo check combinations
     #SEARCH_LIST = ['compliance', 'earnings', 'sustainable']
-    SEARCH_LIST = ["corrupt"] #, "scam", "debt", "borrow", "inflated"]
+    SEARCH_LIST = ["debt", "borrow"]
+    SEARCH_LIST = ['loss', 'losses']
 
     def print_visited(kg_obj):
         visited_dict = iterate_graph(kg_obj, SEARCH_LIST, max_hops=1)

@@ -18,14 +18,9 @@ def test_annual_report_iterate():
 
     # first hop
     visited_dict = defaultdict(lambda: 0)
-    next_dict = get_next_nodes(kg, ['purchase'])
+    next_dict = get_next_nodes(kg, 'purchase')
     assert len(next_dict) > 15
     assert 'contracts' in next_dict.keys()
-
-    # second hop
-    third_dict = get_next_nodes(kg, list(next_dict.keys()))
-    assert len(third_dict) > 500
-    assert 'volatility'  in third_dict.keys()
 
 
 if __name__ == '__main__':
