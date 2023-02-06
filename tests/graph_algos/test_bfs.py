@@ -36,10 +36,25 @@ def test_bfs_berkshire_vs_enron():
         text_to_graph_link_all(b_kg, b_txt)
         b_kg.save_graph(b_pkl_path)
 
-    #@todo check combinations
+    #@todo check combinations and patterns in best & worst
     #SEARCH_LIST = ['compliance', 'earnings', 'sustainable']
     SEARCH_LIST = ["debt", "borrow"]
     SEARCH_LIST = ['loss', 'losses']
+
+    # Possible approach
+    # Find key concepts that relate to loss or debt or compliance
+    # Determine the nature of the relationship
+    # Summarize sentiment, word2vec, fuzzy summary of how debt, loss, ... is handled
+
+
+    # Some of most successful companies in 2000:
+    # General Electric, Exxon Mobil, Ford, Citigroup, WalMart, Bank of America
+    # CocaCola
+
+    # Some of least successful companies in 2000:
+    # America Online, WorldCom, Kmart, Global Crossing, Pacific Gas & Electric Co.
+    # Lehman Brothers, Chrysler
+
 
     def print_visited(kg_obj):
         visited_dict = bfs.breadth_first_search(kg_obj, SEARCH_LIST, max_depth=3)
